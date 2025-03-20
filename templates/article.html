@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Knowledge Base{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('category', category_id=article.category.id) }}">{{ article.category.name }}</a></li>
+        <li class="breadcrumb-item active">{{ article.title }}</li>
+    </ol>
+</nav>
+
+<div class="article-container">
+    <h1 class="article-title">{{ article.title }}</h1>
+    <div class="article-metadata mb-4">
+        <span class="text-muted">
+            Last updated: {{ article.updated_at.strftime('%B %d, %Y') }}
+        </span>
+    </div>
+    
+    <div class="article-content">
+        {{ article.content | safe }}
+    </div>
+</div>
+
+<div class="related-articles mt-5">
+    <h3>Related Articles</h3>
+    <div class="list-group">
+        {% for related in article.category.articles[:3] if related.id != article.id %}
+        <a href="{{ url_for('article', article_id=related.id) }}" class="list-group-item list-group-item-action">
+            {{ related.title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

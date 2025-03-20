@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Base - Home{% endblock %}
+
+{% block hero %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1>How can we help?</h1>
+                <div class="search-container">
+                    <form id="search-form" class="search-form">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search-input" 
+                                   placeholder="Search for articles..." maxlength="100">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="categories-section">
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 mb-4">
+            <div class="category-card">
+                <div class="category-icon">
+                    {% set icons = ['bi-book', 'bi-gear', 'bi-tools', 'bi-code-square', 'bi-check-circle'] %}
+                    <i class="bi {{ icons[loop.index0 % 5] }}"></i>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+                <a href="{{ url_for('category', category_id=category.id) }}" class="stretched-link">
+                    Browse Articles <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="popular-articles mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>Popular Articles</h2>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-lg-8">
+            {% for article in recent_articles %}
+            <div class="article-preview">
+                <h3>
+                    <a href="{{ url_for('article', article_id=article.id) }}">{{ article.title }}</a>
+                </h3>
+                <div class="article-meta">
+                    <span class="category-tag">{{ article.category.name }}</span>
+                    <span class="date">{{ article.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-4">
+            <div class="help-card">
+                <div class="help-card-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3>Need More Help?</h3>
+                <p>Can't find what you're looking for? Our support team is here to help.</p>
+                <a href="#" class="btn btn-outline-primary">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="search-results" class="search-results-section d-none">
+    <div class="row">
+        <div class="col-12">
+            <h2>Search Results</h2>
+            <div class="list-group" id="results-list"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
