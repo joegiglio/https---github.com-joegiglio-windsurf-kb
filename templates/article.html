@@ -2,36 +2,90 @@
 
 {% block title %}{{ article.title }} - Knowledge Base{% endblock %}
 
-{% block content %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ url_for('category', category_id=article.category.id) }}">{{ article.category.name }}</a></li>
-        <li class="breadcrumb-item active">{{ article.title }}</li>
-    </ol>
-</nav>
-
-<div class="article-container">
-    <h1 class="article-title">{{ article.title }}</h1>
-    <div class="article-metadata mb-4">
-        <span class="text-muted">
-            Last updated: {{ article.updated_at.strftime('%B %d, %Y') }}
-        </span>
-    </div>
-    
-    <div class="article-content">
-        {{ article.content | safe }}
+{% block hero %}
+<div class="article-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('category', category_id=article.category.id) }}">{{ article.category.name }}</a></li>
+                <li class="breadcrumb-item active">{{ article.title }}</li>
+            </ol>
+        </nav>
     </div>
 </div>
+{% endblock %}
 
-<div class="related-articles mt-5">
-    <h3>Related Articles</h3>
-    <div class="list-group">
-        {% for related in article.category.articles[:3] if related.id != article.id %}
-        <a href="{{ url_for('article', article_id=related.id) }}" class="list-group-item list-group-item-action">
-            {{ related.title }}
-        </a>
-        {% endfor %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <article class="article-container">
+            <header class="article-header">
+                <h1>{{ article.title }}</h1>
+                <div class="article-meta">
+                    <span class="category-tag">
+                        <i class="bi bi-folder"></i>
+                        {{ article.category.name }}
+                    </span>
+                    <span class="date">
+                        <i class="bi bi-clock"></i>
+                        Last updated: {{ article.updated_at.strftime('%B %d, %Y') }}
+                    </span>
+                </div>
+            </header>
+
+            <div class="article-content">
+                {{ article.content | safe }}
+            </div>
+
+            <footer class="article-footer">
+                <div class="article-feedback">
+                    <h4>Was this article helpful?</h4>
+                    <div class="feedback-buttons">
+                        <button class="btn btn-outline-success btn-sm feedback-btn" data-article-id="{{ article.id }}" data-feedback="helpful">
+                            <i class="bi bi-hand-thumbs-up"></i> Yes
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm feedback-btn" data-article-id="{{ article.id }}" data-feedback="not-helpful">
+                            <i class="bi bi-hand-thumbs-down"></i> No
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </article>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="table-of-contents">
+                    <h3>In This Article</h3>
+                    <div id="toc-container"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Related Articles</h3>
+                <div class="related-articles">
+                    {% for related in article.category.articles[:3] if related.id != article.id %}
+                    <a href="{{ url_for('article', article_id=related.id) }}" class="related-article">
+                        <i class="bi bi-file-text"></i>
+                        <span>{{ related.title }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="help-card">
+                    <div class="help-card-icon">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                    <h3>Still Need Help?</h3>
+                    <p>Can't find what you're looking for? Our support team is here to help.</p>
+                    <a href="#" class="btn btn-outline-primary">Contact Support</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

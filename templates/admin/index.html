@@ -1,0 +1,176 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Dashboard</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Statistics Cards -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-primary">
+                        <i class="bi bi-folder"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Categories</h6>
+                        <h2 class="mb-0 stats-categories">{{ categories|length }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <a href="{{ url_for('admin.categories') }}" class="text-decoration-none">
+                    Manage Categories <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success">
+                        <i class="bi bi-file-text"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Articles</h6>
+                        <h2 class="mb-0 stats-articles">{{ articles|length }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <a href="{{ url_for('admin.articles') }}" class="text-decoration-none">
+                    Manage Articles <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-info">
+                        <i class="bi bi-eye"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Total Views</h6>
+                        <h2 class="mb-0 stats-views">{{ total_views }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <a href="#" class="text-decoration-none">
+                    View Analytics <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Searches</h6>
+                        <h2 class="mb-0 stats-searches">{{ total_searches }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <a href="#" class="text-decoration-none">
+                    Search Report <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <!-- Recent Articles -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Articles</h5>
+                <a href="{{ url_for('admin.articles') }}" class="btn btn-sm btn-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="recentArticles">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in recent_articles %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('article', article_id=article.id) }}" target="_blank">
+                                        {{ article.title }}
+                                    </a>
+                                </td>
+                                <td>{{ article.category.name }}</td>
+                                <td>{{ article.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Searches -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Popular Searches</h5>
+                <a href="#" class="btn btn-sm btn-primary">
+                    Full Report
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="popularSearches">
+                        <thead>
+                            <tr>
+                                <th>Search Term</th>
+                                <th>Count</th>
+                                <th>Last Searched</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for search in popular_searches %}
+                            <tr>
+                                <td>{{ search.term }}</td>
+                                <td>{{ search.count }}</td>
+                                <td>{{ search.last_searched.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
+{% endblock %}

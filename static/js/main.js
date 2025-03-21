@@ -1,73 +1,142 @@
 $(document).ready(function() {
+    // Constants
+    const SEARCH_DELAY = 300;
+    const MAX_QUERY_LENGTH = 100;
+    const MIN_QUERY_LENGTH = 2;
+    
+    // Cache DOM elements
+    const $searchForm = $('#search-form');
+    const $searchInput = $('#search-input');
+    const $searchResults = $('#search-results');
+    const $resultsList = $('#results-list');
+    
     let searchTimeout;
-    const searchDelay = 300; // Milliseconds to wait before searching
 
     // Function to sanitize user input
     function sanitizeInput(input) {
-        return $('<div>').text(input).html();
+        return $('<div>').text(input).html()
+            .replace(/[<>]/g, '') // Remove < and >
+            .replace(/['"]/g, ''); // Remove quotes
+    }
+
+    // Function to validate search input
+    function validateSearchInput(query) {
+        if (!query || typeof query !== 'string') {
+            return false;
+        }
+        
+        query = query.trim();
+        return query.length >= MIN_QUERY_LENGTH && query.length <= MAX_QUERY_LENGTH;
+    }
+
+    // Function to format date
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Function to create search result item
+    function createSearchResultItem(article) {
+        return $('<a>')
+            .addClass('list-group-item list-group-item-action')
+            .attr('href', `/article/${article.id}`)
+            .html(`
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">${sanitizeInput(article.title)}</h5>
+                        <small class="category-tag">${sanitizeInput(article.category_name)}</small>
+                    </div>
+                    <small class="text-muted">${formatDate(article.updated_at)}</small>
+                </div>
+            `);
     }
 
     // Function to perform search
     function performSearch(query) {
-        if (!query || query.length > 100) return;
-        
+        if (!validateSearchInput(query)) {
+            return;
+        }
+
         const sanitizedQuery = sanitizeInput(query);
         
-        $.get('/search', { q: sanitizedQuery }, function(results) {
-            const $resultsList = $('#results-list');
-            $resultsList.empty();
-            
-            if (results.length > 0) {
-                results.forEach(function(article) {
-                    const $item = $('<a>')
-                        .addClass('list-group-item list-group-item-action')
-                        .attr('href', '/article/' + article.id)
-                        .html(`
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-1">${article.title}</h5>
-                                <small class="text-muted">${new Date(article.updated_at).toLocaleDateString()}</small>
-                            </div>
-                        `);
-                    $resultsList.append($item);
-                });
-                $('#search-results').removeClass('d-none');
-            } else {
-                $resultsList.html('<div class="list-group-item">No results found</div>');
-                $('#search-results').removeClass('d-none');
+        $.ajax({
+            url: '/search',
+            method: 'GET',
+            data: { q: sanitizedQuery },
+            beforeSend: function() {
+                $resultsList.html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                $searchResults.removeClass('d-none');
+            },
+            success: function(results) {
+                $resultsList.empty();
+                
+                if (results.length > 0) {
+                    results.forEach(function(article) {
+                        $resultsList.append(createSearchResultItem(article));
+                    });
+                } else {
+                    $resultsList.html(`
+                        <div class="text-center p-4">
+                            <i class="bi bi-search fs-2 text-muted"></i>
+                            <p class="mt-3">No results found for "${sanitizeInput(query)}"</p>
+                            <p class="text-muted">Try adjusting your search terms or browse our categories below</p>
+                        </div>
+                    `);
+                }
+            },
+            error: function() {
+                $resultsList.html(`
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        An error occurred while searching. Please try again later.
+                    </div>
+                `);
             }
         });
     }
 
-    // Handle main search form
-    $('#search-form').on('submit', function(e) {
+    // Handle search form submission
+    $searchForm.on('submit', function(e) {
         e.preventDefault();
-        const query = $('#search-input').val().trim();
+        const query = $searchInput.val();
         performSearch(query);
     });
 
-    // Handle quick search input
-    $('#quick-search').on('input', function() {
+    // Handle search input with debouncing
+    $searchInput.on('input', function() {
         clearTimeout(searchTimeout);
         const query = $(this).val().trim();
         
-        searchTimeout = setTimeout(function() {
-            performSearch(query);
-        }, searchDelay);
-    });
-
-    // Handle quick search button click
-    $('#quick-search-btn').on('click', function() {
-        const query = $('#quick-search').val().trim();
-        performSearch(query);
-    });
-
-    // Clear search results when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#search-results, #search-form, .quick-search').length) {
-            $('#search-results').addClass('d-none');
+        if (query.length >= MIN_QUERY_LENGTH) {
+            searchTimeout = setTimeout(function() {
+                performSearch(query);
+            }, SEARCH_DELAY);
+        } else {
+            $searchResults.addClass('d-none');
         }
     });
 
-    // Initialize tooltips
+    // Close search results when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#search-results, #search-form').length) {
+            $searchResults.addClass('d-none');
+        }
+    });
+
+    // Initialize Bootstrap tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
+
+    // Add responsive behavior for mobile devices
+    if ($(window).width() < 768) {
+        $('.category-card').addClass('mb-3');
+    }
+
+    // Handle window resize events
+    $(window).on('resize', function() {
+        if ($(window).width() < 768) {
+            $('.category-card').addClass('mb-3');
+        } else {
+            $('.category-card').removeClass('mb-3');
+        }
+    });
 });

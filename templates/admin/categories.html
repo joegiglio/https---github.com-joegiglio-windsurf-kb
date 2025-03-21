@@ -1,0 +1,216 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Manage Categories - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Categories</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        <i class="bi bi-plus-lg"></i> Add Category
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="categoriesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Articles</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr data-category-id="{{ category.id }}">
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.description }}</td>
+                        <td>{{ category.articles|length }}</td>
+                        <td>{{ category.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-category" 
+                                        data-category-id="{{ category.id }}"
+                                        data-category-name="{{ category.name }}"
+                                        data-category-description="{{ category.description }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-category"
+                                        data-category-id="{{ category.id }}"
+                                        data-category-name="{{ category.name }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addCategoryForm" method="POST" action="{{ url_for('admin.add_category') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="categoryName" name="name" 
+                               required maxlength="100" pattern="[A-Za-z0-9\s\-_]{1,100}">
+                        <div class="form-text">Only letters, numbers, spaces, hyphens, and underscores allowed.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="categoryDescription" name="description" 
+                                  rows="3" maxlength="500"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editCategoryForm" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editCategoryId" name="category_id">
+                    <div class="mb-3">
+                        <label for="editCategoryName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="editCategoryName" name="name" 
+                               required maxlength="100" pattern="[A-Za-z0-9\s\-_]{1,100}">
+                        <div class="form-text">Only letters, numbers, spaces, hyphens, and underscores allowed.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editCategoryDescription" name="description" 
+                                  rows="3" maxlength="500"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the category "<span id="deleteCategoryName"></span>"?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteCategoryForm" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#categoriesTable').DataTable({
+        order: [[0, 'asc']],
+        pageLength: 10,
+        language: {
+            search: "Filter categories:"
+        }
+    });
+
+    // Handle edit category button
+    $('.edit-category').on('click', function() {
+        const categoryId = $(this).data('category-id');
+        const categoryName = $(this).data('category-name');
+        const categoryDescription = $(this).data('category-description');
+        
+        $('#editCategoryId').val(categoryId);
+        $('#editCategoryName').val(categoryName);
+        $('#editCategoryDescription').val(categoryDescription);
+        $('#editCategoryForm').attr('action', `/admin/categories/${categoryId}/edit`);
+        $('#editCategoryModal').modal('show');
+    });
+
+    // Handle delete category button
+    $('.delete-category').on('click', function() {
+        const categoryId = $(this).data('category-id');
+        const categoryName = $(this).data('category-name');
+        
+        $('#deleteCategoryName').text(categoryName);
+        $('#deleteCategoryForm').attr('action', `/admin/categories/${categoryId}/delete`);
+        $('#deleteCategoryModal').modal('show');
+    });
+
+    // Form validation
+    function validateCategoryForm(form) {
+        const nameInput = form.find('input[name="name"]');
+        const name = nameInput.val().trim();
+        
+        if (name.length === 0 || name.length > 100) {
+            alert('Category name must be between 1 and 100 characters.');
+            return false;
+        }
+        
+        if (!/^[A-Za-z0-9\s\-_]+$/.test(name)) {
+            alert('Category name can only contain letters, numbers, spaces, hyphens, and underscores.');
+            return false;
+        }
+        
+        const description = form.find('textarea[name="description"]').val().trim();
+        if (description.length > 500) {
+            alert('Description must not exceed 500 characters.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Add form validation
+    $('#addCategoryForm').on('submit', function(e) {
+        if (!validateCategoryForm($(this))) {
+            e.preventDefault();
+        }
+    });
+
+    // Edit form validation
+    $('#editCategoryForm').on('submit', function(e) {
+        if (!validateCategoryForm($(this))) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}
