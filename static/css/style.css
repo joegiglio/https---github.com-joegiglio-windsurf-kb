@@ -306,6 +306,47 @@ a:hover {
     color: var(--primary-color);
 }
 
+/* Category Drag-and-Drop */
+.handle {
+    cursor: move;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.handle:hover {
+    color: #495057;
+}
+
+.category-row {
+    transition: background-color 0.2s ease;
+}
+
+.category-row:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.category-row.sortable-ghost {
+    background-color: rgba(0, 123, 255, 0.1);
+    opacity: 0.8;
+}
+
+.category-row.sortable-drag {
+    background-color: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Toast notifications */
+.toast {
+    z-index: 1050;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1050;
+}
+
 /* Responsive Design */
 @media (max-width: 991.98px) {
     .sidebar {
@@ -357,5 +398,21 @@ a:hover {
 
     .category-card {
         padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        margin-bottom: 1rem;
+        border: 0;
+    }
+
+    .category-row td {
+        white-space: normal;
+    }
+
+    .toast {
+        width: calc(100% - 2rem);
+        max-width: none;
     }
 }

@@ -6,6 +6,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
+    order = db.Column(db.Integer, default=0)  # New field for ordering
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     articles = db.relationship('Article', backref='category', lazy=True)
@@ -15,6 +16,7 @@ class Category(db.Model):
             'id': self.id,
             'name': bleach.clean(self.name),
             'description': bleach.clean(self.description) if self.description else '',
+            'order': self.order,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
