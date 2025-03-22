@@ -3,7 +3,7 @@ from functools import wraps
 from flask import current_app, session
 from werkzeug.security import check_password_hash
 import bleach
-from models import db, Category, Article
+from models import db, Category, Article, SearchLog
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
@@ -25,15 +25,85 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def clean_content(content):
+    """Clean and sanitize HTML content while preserving safe styles"""
+    allowed_tags = [
+        'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'u', 'ol', 'ul', 'li', 
+        'br', 'hr', 'a', 'img', 'blockquote', 'code', 'pre', 'div', 'span', 'table', 
+        'thead', 'tbody', 'tr', 'th', 'td'
+    ]
+    
+    allowed_attributes = {
+        '*': ['class', 'style', 'id'],
+        'a': ['href', 'title', 'target'],
+        'img': ['src', 'alt', 'title', 'width', 'height'],
+        'td': ['colspan', 'rowspan'],
+        'th': ['colspan', 'rowspan', 'scope']
+    }
+    
+    allowed_protocols = ['http', 'https', 'mailto']
+    
+    # First pass: clean the HTML
+    cleaned = bleach.clean(
+        content,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        protocols=allowed_protocols,
+        strip=True,
+        strip_comments=True
+    )
+    
+    # Second pass: clean styles using bleach-allowlist
+    from bleach.css_sanitizer import CSSSanitizer
+    
+    css_sanitizer = CSSSanitizer(
+        allowed_css_properties=[
+            'text-align', 'margin', 'padding', 'width', 'height', 'border',
+            'background-color', 'color', 'font-size', 'font-weight', 'font-style',
+            'text-decoration', 'vertical-align', 'margin-left', 'margin-right',
+            'float', 'display'
+        ]
+    )
+    
+    final_cleaned = bleach.clean(
+        cleaned,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        protocols=allowed_protocols,
+        css_sanitizer=css_sanitizer,
+        strip=True,
+        strip_comments=True
+    )
+    
+    return final_cleaned
+
 @admin.route('/')
 @admin_required
 def index():
+    # Get all data
     categories = Category.query.all()
     articles = Article.query.all()
+    total_views = sum(article.views for article in articles)
+    total_searches = db.session.query(db.func.count(SearchLog.id)).scalar() or 0
+    recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
+    popular_searches = SearchLog.get_popular_searches(10)
+    
+    # Calculate statistics
+    stats = {
+        'total_articles': len(articles),
+        'total_views': total_views,
+        'total_categories': len(categories),
+        'average_rating': sum(article.get_rating_percentage() for article in articles) / len(articles) if articles else 0
+    }
+    
     return render_template('admin/index.html', 
+                         stats=stats,
                          categories=categories,
                          articles=articles,
-                         total_articles=len(articles))
+                         total_views=total_views,
+                         total_searches=total_searches,
+                         recent_articles=recent_articles,
+                         popular_searches=popular_searches)
 
 @admin.route('/login', methods=['GET', 'POST'])
 def login():
@@ -173,22 +243,10 @@ def add_article():
         flash('Title must be less than 200 characters', 'danger')
         return redirect(url_for('admin.articles'))
     
-    # Sanitize content with Bleach
-    content = bleach.clean(
-        content,
-        tags=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'hr', 'a', 'img',
-              'blockquote', 'code', 'pre', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
-        attributes={
-            '*': ['class', 'style'],
-            'a': ['href', 'title', 'target'],
-            'img': ['src', 'alt', 'title', 'width', 'height']
-        },
-        protocols=['http', 'https', 'mailto'],
-        strip=True,
-        strip_comments=True
-    )
+    # Clean and sanitize content
+    cleaned_content = clean_content(content)
     
-    article = Article(title=title, content=content, category_id=category_id)
+    article = Article(title=title, content=cleaned_content, category_id=category_id)
     db.session.add(article)
     
     try:
@@ -215,24 +273,12 @@ def edit_article(id):
         flash('Title must be less than 200 characters', 'danger')
         return redirect(url_for('admin.articles'))
     
-    # Sanitize content with Bleach
-    content = bleach.clean(
-        content,
-        tags=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'br', 'hr', 'a', 'img',
-              'blockquote', 'code', 'pre', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
-        attributes={
-            '*': ['class', 'style'],
-            'a': ['href', 'title', 'target'],
-            'img': ['src', 'alt', 'title', 'width', 'height']
-        },
-        protocols=['http', 'https', 'mailto'],
-        strip=True,
-        strip_comments=True
-    )
+    # Clean and sanitize content
+    cleaned_content = clean_content(content)
     
     article = Article.query.get_or_404(id)
     article.title = title
-    article.content = content
+    article.content = cleaned_content
     article.category_id = category_id
     article.updated_at = datetime.utcnow()
     
@@ -304,6 +350,35 @@ def upload_image():
         })
     
     return jsonify({'error': 'Invalid file type'}), 400
+
+@admin.route('/search-report')
+@admin_required
+def search_report():
+    total_searches = db.session.query(db.func.count(SearchLog.id)).scalar() or 0
+    avg_results = db.session.query(db.func.avg(SearchLog.results_count)).scalar() or 0
+    no_results_count = db.session.query(db.func.count(SearchLog.id))\
+        .filter(SearchLog.results_count == 0).scalar() or 0
+    no_results_rate = (no_results_count / total_searches * 100) if total_searches > 0 else 0
+    
+    # Get the most recent 100 searches for initial display
+    searches = SearchLog.query.order_by(SearchLog.created_at.desc()).limit(100).all()
+    
+    return render_template('admin/search_report.html',
+                         total_searches=total_searches,
+                         avg_results=avg_results,
+                         no_results_rate=no_results_rate,
+                         searches=searches)
+
+@admin.route('/api/search-logs')
+@admin_required
+def get_search_logs():
+    searches = SearchLog.query.order_by(SearchLog.created_at.desc()).all()
+    return jsonify([{
+        'term': search.term,
+        'results_count': search.results_count,
+        'created_at': search.created_at.isoformat(),
+        'ip_address': search.ip_address
+    } for search in searches])
 
 # Log changes
 with open('changes.log', 'a') as f:

@@ -3,8 +3,9 @@ from werkzeug.security import generate_password_hash
 import os
 import bleach
 from extensions import db
-from models import Category, Article
+from models import Category, Article, SearchLog
 from datetime import datetime
+from flask_migrate import Migrate
 
 def create_app():
     app = Flask(__name__)
@@ -21,10 +22,45 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
+    migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
     # Import and register blueprints
     from admin import admin
     app.register_blueprint(admin)
+
+    # Create database tables
+    with app.app_context():
+        db.create_all()  # Only create tables if they don't exist
+        
+        # Add sample data if database is empty
+        if Category.query.count() == 0:
+            categories = [
+                Category(name='General'),
+                Category(name='Technology'),
+                Category(name='Business')
+            ]
+            db.session.add_all(categories)
+            db.session.commit()
+            
+            articles = [
+                Article(
+                    title='Welcome to Knowledge Base',
+                    content='Welcome to our knowledge base system. Here you will find helpful articles and guides.',
+                    category_id=1
+                ),
+                Article(
+                    title='Getting Started with Technology',
+                    content='Learn about the latest technology trends and how to stay up to date.',
+                    category_id=2
+                ),
+                Article(
+                    title='Business Best Practices',
+                    content='Discover the best practices for running a successful business.',
+                    category_id=3
+                )
+            ]
+            db.session.add_all(articles)
+            db.session.commit()
 
     # Define routes
     @app.route('/')
@@ -45,9 +81,50 @@ def create_app():
         article.increment_views()
         return render_template('article.html', article=article)
 
+    @app.route('/article/<int:article_id>/rate', methods=['POST'])
+    def rate_article(article_id):
+        print(f"Received rating request for article {article_id}")
+        article = Article.query.get_or_404(article_id)
+        data = request.get_json()
+        print(f"Request data: {data}")
+        
+        if not isinstance(data, dict) or 'vote' not in data:
+            print("Invalid request: missing vote data")
+            return jsonify({'error': 'Invalid request'}), 400
+            
+        vote = data['vote']
+        if vote not in ['up', 'down']:
+            print(f"Invalid vote type: {vote}")
+            return jsonify({'error': 'Invalid vote type'}), 400
+            
+        if vote == 'up':
+            article.upvotes = (article.upvotes or 0) + 1
+            print(f"Incrementing upvotes to {article.upvotes}")
+        else:
+            article.downvotes = (article.downvotes or 0) + 1
+            print(f"Incrementing downvotes to {article.downvotes}")
+            
+        try:
+            db.session.commit()
+            print("Successfully saved vote to database")
+        except Exception as e:
+            print(f"Error saving vote: {str(e)}")
+            db.session.rollback()
+            return jsonify({'error': 'Database error'}), 500
+        
+        response_data = {
+            'upvotes': article.upvotes,
+            'downvotes': article.downvotes,
+            'rating_percentage': article.get_rating_percentage()
+        }
+        print(f"Sending response: {response_data}")
+        return jsonify(response_data)
+
     @app.route('/search')
     def search():
         query = request.args.get('q', '')
+        should_log = request.args.get('log', 'false').lower() == 'true'
+        
         if not query or len(query) > 100:  # Limit query length for security
             return jsonify([])
         
@@ -60,6 +137,16 @@ def create_app():
             Article.content.ilike(f'%{sanitized_query}%')
         ).limit(10).all()
         
+        # Only log completed searches (when form is submitted)
+        if should_log:
+            search_log = SearchLog(
+                term=sanitized_query[:100],  # Ensure max length
+                results_count=len(articles),
+                ip_address=request.remote_addr
+            )
+            db.session.add(search_log)
+            db.session.commit()
+        
         return jsonify([article.to_dict() for article in articles])
 
     return app
@@ -67,31 +154,6 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        
-        # Add some initial categories if none exist
-        if not Category.query.first():
-            categories = [
-                Category(name='Getting Started', description='Basic guides and tutorials', order=0),
-                Category(name='Features', description='Detailed feature documentation', order=1),
-                Category(name='Troubleshooting', description='Common issues and solutions', order=2),
-                Category(name='API Reference', description='API documentation and examples', order=3),
-                Category(name='Best Practices', description='Guidelines and recommendations', order=4)
-            ]
-            db.session.add_all(categories)
-            db.session.commit()
-            
-            # Log the changes
-            with open('changes.log', 'a') as f:
-                f.write('\n[{}] Added category ordering\n'.format(
-                    datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                ))
-                f.write('- Added order field to Category model\n')
-                f.write('- Added drag-and-drop reordering in admin panel\n')
-                f.write('- Updated category display to respect order\n')
-                f.write('- Added responsive design for mobile and tablet\n')
-    
     app.run(debug=True, extra_files=[
         os.path.join(app.root_path, 'templates', '**', '*.html'),
         os.path.join(app.root_path, 'static', 'css', '*.css'),

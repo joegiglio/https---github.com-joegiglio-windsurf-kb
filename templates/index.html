@@ -12,12 +12,17 @@
                     <form id="search-form" class="search-form">
                         <div class="input-group">
                             <input type="text" class="form-control" id="search-input" 
-                                   placeholder="Search for articles..." maxlength="100">
+                                   placeholder="Search for articles..." maxlength="100"
+                                   autocomplete="off">
                             <button class="btn btn-primary" type="submit">
                                 <i class="bi bi-search"></i> Search
                             </button>
                         </div>
                     </form>
+                    <div id="search-results" class="search-results-section d-none">
+                        <h2>Search Results</h2>
+                        <div class="list-group" id="results-list"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,15 +80,6 @@
                 <p>Can't find what you're looking for? Our support team is here to help.</p>
                 <a href="#" class="btn btn-outline-primary">Contact Support</a>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="search-results" class="search-results-section d-none">
-    <div class="row">
-        <div class="col-12">
-            <h2>Search Results</h2>
-            <div class="list-group" id="results-list"></div>
         </div>
     </div>
 </div>

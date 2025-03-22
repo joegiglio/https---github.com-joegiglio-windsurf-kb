@@ -1,0 +1,19 @@
+/* Text alignment classes */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* Font styles */
+.font-bold { font-weight: bold; }
+.font-italic { font-style: italic; }
+.underline { text-decoration: underline; }
+
+/* Table styles */
+table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+th, td { padding: 0.75rem; border: 1px solid #dee2e6; }
+th { background-color: #f8f9fa; }
+
+/* Image styles */
+img { max-width: 100%; height: auto; }
+.img-fluid { max-width: 100%; height: auto; }
