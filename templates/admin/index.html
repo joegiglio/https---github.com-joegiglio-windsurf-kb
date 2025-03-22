@@ -120,6 +120,26 @@
                     <a href="{{ url_for('admin.search_report') }}" class="btn btn-sm btn-primary">Full Report</a>
                 </div>
                 <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Term</th>
+                                    <th>Count</th>
+                                    <th>Last Searched</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for search in popular_searches %}
+                                <tr>
+                                    <td>{{ search.term }}</td>
+                                    <td>{{ search.count }}</td>
+                                    <td>{{ search.last_searched.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="chart-pie pt-4">
                         <canvas id="searchMetricsChart"></canvas>
                     </div>

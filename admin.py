@@ -7,6 +7,7 @@ from models import db, Category, Article, SearchLog
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+from sqlalchemy import func
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -88,12 +89,20 @@ def index():
     recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
     popular_searches = SearchLog.get_popular_searches(10)
     
+    # Get search metrics for the pie chart
+    searches_with_results = db.session.query(func.count(SearchLog.id)).filter(SearchLog.results_count > 0).scalar() or 0
+    searches_no_results = total_searches - searches_with_results
+    
     # Calculate statistics
     stats = {
         'total_articles': len(articles),
         'total_views': total_views,
         'total_categories': len(categories),
-        'average_rating': sum(article.get_rating_percentage() for article in articles) / len(articles) if articles else 0
+        'average_rating': sum(article.get_rating_percentage() for article in articles) / len(articles) if articles else 0,
+        'search_metrics': {
+            'with_results': searches_with_results,
+            'no_results': searches_no_results
+        }
     }
     
     return render_template('admin/index.html', 
@@ -379,6 +388,21 @@ def get_search_logs():
         'created_at': search.created_at.isoformat(),
         'ip_address': search.ip_address
     } for search in searches])
+
+@admin.route('/dashboard-data')
+@admin_required
+def dashboard_data():
+    # Get search metrics for the pie chart
+    total_searches = db.session.query(func.count(SearchLog.id)).scalar() or 0
+    searches_with_results = db.session.query(func.count(SearchLog.id)).filter(SearchLog.results_count > 0).scalar() or 0
+    searches_no_results = total_searches - searches_with_results
+    
+    return jsonify({
+        'search_metrics': {
+            'with_results': searches_with_results,
+            'no_results': searches_no_results
+        }
+    })
 
 # Log changes
 with open('changes.log', 'a') as f:
