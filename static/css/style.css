@@ -307,14 +307,26 @@ a:hover {
 }
 
 /* Category Drag-and-Drop */
-.handle {
-    cursor: move;
+.handle,
+.handle-container {
+    cursor: move; /* Fallback for older browsers */
+    cursor: -webkit-grab;
+    cursor: grab;
     color: #6c757d;
     transition: color 0.2s ease;
 }
 
-.handle:hover {
+.handle:hover,
+.handle-container:hover .handle {
     color: #495057;
+}
+
+.handle:active,
+.handle-container:active .handle,
+.sortable-ghost {
+    cursor: move; /* Fallback for older browsers */
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
 }
 
 .category-row {
