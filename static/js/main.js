@@ -11,6 +11,7 @@ $(document).ready(function() {
     const $resultsList = $('#results-list');
     
     let searchTimeout;
+    let lastLoggedSearch = '';
 
     // Function to sanitize user input
     function sanitizeInput(input) {
@@ -41,18 +42,21 @@ $(document).ready(function() {
             .addClass('list-group-item list-group-item-action')
             .attr('href', `/article/${article.id}`)
             .html(`
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
+                <div class="d-flex w-100 justify-content-between">
+                    <div class="search-result-content">
                         <h5 class="mb-1">${sanitizeInput(article.title)}</h5>
+                        <p class="mb-1 text-muted">${sanitizeInput(article.preview)}</p>
                         <small class="category-tag">${sanitizeInput(article.category_name)}</small>
                     </div>
-                    <small class="text-muted">${formatDate(article.updated_at)}</small>
+                    <small class="text-muted text-end">
+                        ${formatDate(article.updated_at)}
+                    </small>
                 </div>
             `);
     }
 
     // Function to perform search
-    function performSearch(query) {
+    function performSearch(query, shouldLog = false) {
         if (!validateSearchInput(query)) {
             return;
         }
@@ -62,7 +66,10 @@ $(document).ready(function() {
         $.ajax({
             url: '/search',
             method: 'GET',
-            data: { q: sanitizedQuery },
+            data: { 
+                q: sanitizedQuery,
+                log: shouldLog  // Only log when explicitly requested
+            },
             beforeSend: function() {
                 $resultsList.html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
                 $searchResults.removeClass('d-none');
@@ -98,8 +105,9 @@ $(document).ready(function() {
     // Handle search form submission
     $searchForm.on('submit', function(e) {
         e.preventDefault();
-        const query = $searchInput.val();
-        performSearch(query);
+        const query = $searchInput.val().trim();
+        performSearch(query, true);  // Always log on form submission
+        lastLoggedSearch = query;
     });
 
     // Handle search input with debouncing
@@ -109,7 +117,7 @@ $(document).ready(function() {
         
         if (query.length >= MIN_QUERY_LENGTH) {
             searchTimeout = setTimeout(function() {
-                performSearch(query);
+                performSearch(query, false);  // Don't log during typing
             }, SEARCH_DELAY);
         } else {
             $searchResults.addClass('d-none');

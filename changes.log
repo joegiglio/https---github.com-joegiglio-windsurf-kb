@@ -112,6 +112,14 @@ Next Steps:
 - Add activity logging
 - Set up backup functionality
 
+[2024-01-09] Updated Admin Base Template
+
+- Updated admin base template with Articles section in navigation
+- Improved navigation responsiveness and active state highlighting
+- Streamlined CSS and JavaScript dependencies
+- Enhanced layout structure for flash messages and main content
+- Removed duplicate dependencies to improve load time
+
 [2025-03-19 23:15:37] Database Initialization
 
 - Created database tables
@@ -119,3 +127,852 @@ Next Steps:
 - Added default categories
 - Added input validation and sanitization
 - Implemented security measures
+
+[2025-03-20 23:07:49] Database Initialization
+
+- Created database tables
+- Set up admin credentials (admin/admin123)
+- Added default categories
+- Added input validation and sanitization
+- Implemented security measures
+
+[2025-03-21]
+- Switched to self-hosted TinyMCE version to remove API key requirement
+- Updated TinyMCE initialization with improved configuration
+- Added essential plugins and toolbar options for rich text editing
+- Fixed content saving issues with TinyMCE editor
+
+[2025-03-21]
+- Fixed Bleach sanitization configuration in admin.py
+- Removed unsupported styles parameter
+- Added more allowed HTML tags for rich text content
+- Added protocols parameter for URL security
+- Added strip_comments parameter for better sanitization
+
+[2025-03-21]
+- Fixed category URL in index.html to match route definition
+- Updated url_for parameter from category_id to id to match app.py route
+
+[2025-03-21]
+- Fixed category URL parameter in index.html to use category_id
+- Corrected URL generation to match route definition in app.py
+
+[2025-03-21]
+- Fixed category card link behavior by removing stretched-link class
+- Added proper button styling for category links
+- Improved category card hover effects and animations
+- Enhanced accessibility by making only the button clickable
+
+[2025-03-21 22:44:04] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-21 22:51:12] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-21 23:07:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-21]
+- Added image upload support to TinyMCE editor
+- Created /admin/upload endpoint for handling image uploads
+- Added security measures for file uploads (type checking, secure filenames)
+- Updated TinyMCE configuration with image upload settings
+- Added uploads directory to .gitignore
+
+[2025-03-22 10:51:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22]
+- Fixed text formatting preservation in articles
+- Added support for text alignment and other styles in Bleach configuration
+- Added table cell attributes (colspan, rowspan) support
+- Enhanced style whitelist to include common text formatting options
+
+[2025-03-22 10:54:00] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 10:57:31] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 10:58:26] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:15:49] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:15:50] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:16:26] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:16:27] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:29:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:29:34] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:29:54] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:30:34] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:34:33] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:35:19] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:35:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:35:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:40:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:42:46] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:42:46] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:44:27] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:45:18] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:45:19] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:47:19] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:48:00] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:48:01] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:56:04] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:56:22] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:59:56] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 11:59:56] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:01:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:04:57] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:05:31] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:05:46] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:05:59] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:06:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:06:22] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:07:59] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:08:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:08:28] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:04] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:25] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:26] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:27] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:47] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:48] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:09:48] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:11:24] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:11:49] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:11:49] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:14:00] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:14:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:14:18] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:17:18] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:16:07] Fixed article rating system
+- Removed db.drop_all() to preserve database between server restarts
+- Added null safety checks in rating increment code
+- Updated article rating endpoint to handle null values properly
+
+[2025-03-22 12:18:10] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:18:11] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:18:51] Fixed article rating percentage calculation
+- Fixed floating-point division in get_rating_percentage()
+- Ensured multiplication by 100 happens before division to avoid integer truncation
+- Added additional null safety with (self.upvotes or 0) checks
+
+[2025-03-22 12:19:37] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:20:28] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:20:28] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:21:47] Added debug logging to article rating system
+- Added detailed console logging to article.js
+- Added server-side logging to rate_article route
+- Added error handling and transaction management for votes
+
+[2025-03-22 12:22:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:20:28] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:20:28] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:22:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:23:11] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:23:12] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:24:16] Fixed article.js loading issue
+- Added missing scripts block to base.html template
+- Added missing styles block to base.html template
+- Article rating JavaScript should now load correctly
+
+[2025-03-22 12:25:43] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:25:44] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:34:23] Fixed search logging in admin dashboard
+- Removed lastLoggedSearch check in main.js
+- Now logging all form submissions, even if the search term is repeated
+- Search reports in admin dashboard should now show all searches
+
+[2025-03-22 12:36:08] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:36:09] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:40:00] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:38:55] Fixed search report aggregation
+- Updated get_popular_searches to properly group search terms
+- Made search term grouping case-insensitive
+- Added sorting by count and most recent search time
+
+[2025-03-22 12:40:41] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:40:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:42:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:42:43] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:41:36] Fixed search logging to properly count searches
+- Updated search route to update existing search logs instead of creating new ones
+- Added case-insensitive search term matching
+- Improved SQLAlchemy query efficiency with proper func imports
+- Fixed search report to show accurate counts and most recent search times
+
+[2025-03-22 12:43:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:43:24] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:45:07] Fixed search log counting
+- Changed search logging to increment results_count instead of overwriting it
+- Added debug logging for search counts
+- Fixed case where new search logs start with count=1
+
+[2025-03-22 12:45:41] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:46:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:46:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:48:33] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:47:53] Fixed SQLite ordering issue
+- Fixed SQLite compatibility issue with desc() function in search reporting
+- Improved code organization in get_popular_searches method
+
+[2025-03-22 12:49:03] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:49:04] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:52:02] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:53:37] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:53:37] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:55:51] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:55:52] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:24:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:24:50] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:25:09] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:27:37] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:28:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:28:33] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:28:35] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:28:46] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:29:09] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:29:10] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:29:11] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:29:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:29:22] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:38:07] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:38:08] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:40:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:40:21] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:46:08] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:46:08] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:49:22] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:49:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:52:51] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:53:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:53:16] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:54:52] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:55:43] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:55:43] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:59:38] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 16:59:39] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:04:16] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:04:16] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:06:25] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:07:22] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:07:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:09:59] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:10:49] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 17:10:50] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface

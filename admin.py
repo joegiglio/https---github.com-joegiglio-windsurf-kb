@@ -1,134 +1,155 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from functools import wraps
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, current_app
+from flask import current_app, session
 from werkzeug.security import check_password_hash
 import bleach
-import re
+from models import db, Category, Article, SearchLog
 from datetime import datetime
-from extensions import db
-from models import Category, Article
+import os
+from werkzeug.utils import secure_filename
+from sqlalchemy import func
+import bleach.css_sanitizer
 
-admin = Blueprint('admin', __name__, url_prefix='/admin')
+# Configure bleach to allow specific HTML tags and attributes
+ALLOWED_TAGS = [
+    'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'hr', 'table', 'thead',
+    'tbody', 'tr', 'th', 'td', 'a', 'img', 'div', 'span'
+]
+
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],
+    'a': ['href', 'title', 'target'],
+    'img': ['src', 'alt', 'title', 'width', 'height', 'class']
+}
+
+ALLOWED_STYLES = [
+    'text-align', 'margin', 'padding', 'width', 'height',
+    'font-weight', 'font-style', 'text-decoration',
+    'color', 'background-color'
+]
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+UPLOAD_FOLDER = 'static/uploads'
+
+# Create CSS sanitizer
+css_sanitizer = bleach.css_sanitizer.CSSSanitizer(
+    allowed_css_properties=ALLOWED_STYLES
+)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'admin' not in session:
-            flash('Please log in first.', 'warning')
+        if not session.get('admin_logged_in'):
             return redirect(url_for('admin.login'))
         return f(*args, **kwargs)
     return decorated_function
 
-def sanitize_input(text, max_length=None):
-    """Sanitize user input by removing HTML tags and limiting length"""
-    if not text:
-        return ""
+def clean_content(content):
+    """Clean and sanitize HTML content while preserving safe styles"""
+    allowed_tags = [
+        'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'u', 'ol', 'ul', 'li', 
+        'br', 'hr', 'a', 'img', 'blockquote', 'code', 'pre', 'div', 'span', 'table', 
+        'thead', 'tbody', 'tr', 'th', 'td'
+    ]
     
-    # Remove HTML tags
-    clean_text = bleach.clean(text, tags=[], strip=True)
+    allowed_attributes = {
+        '*': ['class', 'style', 'id'],
+        'a': ['href', 'title', 'target'],
+        'img': ['src', 'alt', 'title', 'width', 'height'],
+        'td': ['colspan', 'rowspan'],
+        'th': ['colspan', 'rowspan', 'scope']
+    }
     
-    # Limit length if specified
-    if max_length and len(clean_text) > max_length:
-        clean_text = clean_text[:max_length]
+    allowed_protocols = ['http', 'https', 'mailto']
     
-    return clean_text
+    # First pass: clean the HTML
+    cleaned = bleach.clean(
+        content,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        protocols=allowed_protocols,
+        strip=True,
+        strip_comments=True
+    )
+    
+    # Second pass: clean styles using bleach-allowlist
+    final_cleaned = bleach.clean(
+        cleaned,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        protocols=allowed_protocols,
+        css_sanitizer=css_sanitizer,
+        strip=True,
+        strip_comments=True
+    )
+    
+    return final_cleaned
 
-def validate_category_name(name):
-    """Validate category name format"""
-    if not name or not isinstance(name, str):
-        return False
-    
-    # Check length (1-100 characters)
-    if len(name) < 1 or len(name) > 100:
-        return False
-    
-    # Only allow letters, numbers, spaces, hyphens, and underscores
-    if not re.match(r'^[A-Za-z0-9\s\-_]+$', name):
-        return False
-    
-    return True
+admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin.route('/')
 @admin_required
 def index():
+    # Get all data
     categories = Category.query.all()
     articles = Article.query.all()
+    total_views = sum(article.views for article in articles)
+    total_searches = db.session.query(db.func.count(SearchLog.id)).scalar() or 0
     recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
+    popular_searches = SearchLog.get_popular_searches(10)
     
-    # In a real application, these would come from a proper analytics system
-    total_views = 0
-    total_searches = 0
-    popular_searches = []
+    # Get search metrics for the pie chart
+    searches_with_results = db.session.query(func.count(SearchLog.id)).filter(SearchLog.results_count > 0).scalar() or 0
+    searches_no_results = total_searches - searches_with_results
     
-    for article in articles:
-        total_views += getattr(article, 'views', 0)
+    # Calculate statistics
+    stats = {
+        'total_articles': len(articles),
+        'total_views': total_views,
+        'total_categories': len(categories),
+        'average_rating': sum(article.get_rating_percentage() for article in articles) / len(articles) if articles else 0,
+        'search_metrics': {
+            'with_results': searches_with_results,
+            'no_results': searches_no_results
+        }
+    }
     
-    return render_template('admin/index.html',
+    return render_template('admin/index.html', 
+                         stats=stats,
                          categories=categories,
                          articles=articles,
-                         recent_articles=recent_articles,
                          total_views=total_views,
                          total_searches=total_searches,
+                         recent_articles=recent_articles,
                          popular_searches=popular_searches)
-
-@admin.route('/dashboard-data')
-@admin_required
-def dashboard_data():
-    """AJAX endpoint for dashboard data"""
-    categories = Category.query.all()
-    articles = Article.query.all()
-    recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
-    
-    # In a real application, these would come from a proper analytics system
-    total_views = sum(getattr(article, 'views', 0) for article in articles)
-    total_searches = 0
-    
-    return jsonify({
-        'categories_count': len(categories),
-        'articles_count': len(articles),
-        'total_views': total_views,
-        'total_searches': total_searches,
-        'recent_articles': [{
-            'id': article.id,
-            'title': article.title,
-            'category_name': article.category.name,
-            'created_at': article.created_at.strftime('%Y-%m-%d')
-        } for article in recent_articles],
-        'popular_searches': []  # Would be populated from analytics in a real application
-    })
 
 @admin.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = sanitize_input(request.form.get('username', ''), max_length=50)
-        password = request.form.get('password', '')
+        username = request.form.get('username')
+        password = request.form.get('password')
         
-        # Validate username format
-        if not username or not re.match(r'^[A-Za-z0-9\-_]+$', username):
-            flash('Invalid username format.', 'danger')
-            return redirect(url_for('admin.login'))
-        
-        # Get admin credentials from app config
-        admin_username = current_app.config.get('ADMIN_USERNAME')
-        admin_password_hash = current_app.config.get('ADMIN_PASSWORD_HASH')
-        
-        if username == admin_username and check_password_hash(admin_password_hash, password):
-            session['admin'] = True
-            flash('Welcome back!', 'success')
+        if (username == current_app.config['ADMIN_USERNAME'] and 
+            check_password_hash(current_app.config['ADMIN_PASSWORD_HASH'], password)):
+            session['admin_logged_in'] = True
             return redirect(url_for('admin.index'))
         
-        flash('Invalid credentials.', 'danger')
+        flash('Invalid credentials', 'danger')
     return render_template('admin/login.html')
 
 @admin.route('/logout')
 def logout():
-    session.pop('admin', None)
-    flash('You have been logged out.', 'info')
+    session.pop('admin_logged_in', None)
     return redirect(url_for('admin.login'))
 
 @admin.route('/categories')
 @admin_required
 def categories():
-    categories = Category.query.all()
+    categories = Category.query.order_by(Category.order).all()
     return render_template('admin/categories.html', categories=categories)
 
 @admin.route('/categories/add', methods=['POST'])
@@ -137,85 +158,290 @@ def add_category():
     name = request.form.get('name', '').strip()
     description = request.form.get('description', '').strip()
     
-    # Validate and sanitize input
-    if not validate_category_name(name):
-        flash('Invalid category name. Use only letters, numbers, spaces, hyphens, and underscores.', 'danger')
+    if not name:
+        flash('Category name is required', 'danger')
+        return redirect(url_for('admin.categories'))
+        
+    if len(name) > 100:
+        flash('Category name must be less than 100 characters', 'danger')
+        return redirect(url_for('admin.categories'))
+        
+    if len(description) > 500:
+        flash('Description must be less than 500 characters', 'danger')
         return redirect(url_for('admin.categories'))
     
-    name = sanitize_input(name, max_length=100)
-    description = sanitize_input(description, max_length=500)
+    # Sanitize input
+    name = bleach.clean(name, tags=[], strip=True)
+    description = bleach.clean(description, tags=[], strip=True)
     
-    # Check if category already exists
-    if Category.query.filter_by(name=name).first():
-        flash('A category with this name already exists.', 'danger')
-        return redirect(url_for('admin.categories'))
+    # Get the highest order value
+    max_order = db.session.query(db.func.max(Category.order)).scalar() or 0
+    
+    category = Category(name=name, description=description, order=max_order + 1)
+    db.session.add(category)
     
     try:
-        category = Category(name=name, description=description)
-        db.session.add(category)
         db.session.commit()
-        flash('Category added successfully.', 'success')
-    except Exception as e:
+        flash('Category added successfully', 'success')
+    except:
         db.session.rollback()
-        flash('An error occurred while adding the category.', 'danger')
+        flash('An error occurred while adding the category', 'danger')
     
     return redirect(url_for('admin.categories'))
 
-@admin.route('/categories/<int:category_id>/edit', methods=['POST'])
+@admin.route('/categories/<int:id>/edit', methods=['POST'])
 @admin_required
-def edit_category(category_id):
-    category = Category.query.get_or_404(category_id)
+def edit_category(id):
     name = request.form.get('name', '').strip()
     description = request.form.get('description', '').strip()
     
-    # Validate and sanitize input
-    if not validate_category_name(name):
-        flash('Invalid category name. Use only letters, numbers, spaces, hyphens, and underscores.', 'danger')
+    if not name:
+        flash('Category name is required', 'danger')
+        return redirect(url_for('admin.categories'))
+        
+    if len(name) > 100:
+        flash('Category name must be less than 100 characters', 'danger')
+        return redirect(url_for('admin.categories'))
+        
+    if len(description) > 500:
+        flash('Description must be less than 500 characters', 'danger')
         return redirect(url_for('admin.categories'))
     
-    name = sanitize_input(name, max_length=100)
-    description = sanitize_input(description, max_length=500)
+    # Sanitize input
+    name = bleach.clean(name, tags=[], strip=True)
+    description = bleach.clean(description, tags=[], strip=True)
     
-    # Check if new name conflicts with existing category
-    existing = Category.query.filter_by(name=name).first()
-    if existing and existing.id != category_id:
-        flash('A category with this name already exists.', 'danger')
-        return redirect(url_for('admin.categories'))
+    category = Category.query.get_or_404(id)
+    category.name = name
+    category.description = description
     
     try:
-        category.name = name
-        category.description = description
-        category.updated_at = datetime.utcnow()
         db.session.commit()
-        flash('Category updated successfully.', 'success')
-    except Exception as e:
+        flash('Category updated successfully', 'success')
+    except:
         db.session.rollback()
-        flash('An error occurred while updating the category.', 'danger')
+        flash('An error occurred while updating the category', 'danger')
     
     return redirect(url_for('admin.categories'))
 
-@admin.route('/categories/<int:category_id>/delete', methods=['POST'])
+@admin.route('/categories/<int:id>/delete', methods=['POST'])
 @admin_required
-def delete_category(category_id):
-    category = Category.query.get_or_404(category_id)
+def delete_category(id):
+    category = Category.query.get_or_404(id)
+    
+    if category.articles:
+        flash('Cannot delete category that has articles', 'danger')
+        return redirect(url_for('admin.categories'))
     
     try:
-        # Check if category has articles
-        if category.articles:
-            flash('Cannot delete category with existing articles.', 'danger')
-            return redirect(url_for('admin.categories'))
-        
         db.session.delete(category)
         db.session.commit()
-        flash('Category deleted successfully.', 'success')
-    except Exception as e:
+        flash('Category deleted successfully', 'success')
+    except:
         db.session.rollback()
-        flash('An error occurred while deleting the category.', 'danger')
+        flash('An error occurred while deleting the category', 'danger')
     
     return redirect(url_for('admin.categories'))
 
 @admin.route('/articles')
 @admin_required
 def articles():
-    # This will be implemented in the next phase
-    return "Article management coming soon!"
+    articles = Article.query.order_by(Article.created_at.desc()).all()
+    categories = Category.query.order_by(Category.name).all()
+    return render_template('admin/articles.html', articles=articles, categories=categories)
+
+@admin.route('/articles/add', methods=['POST'])
+@admin_required
+def add_article():
+    title = request.form.get('title', '').strip()
+    content = request.form.get('content', '').strip()
+    keywords = request.form.get('keywords', '').strip()
+    category_id = request.form.get('category_id')
+    
+    if not title or not content or not category_id:
+        flash('Title, content, and category are required', 'danger')
+        return redirect(url_for('admin.articles'))
+        
+    if len(title) > 200:
+        flash('Title must be less than 200 characters', 'danger')
+        return redirect(url_for('admin.articles'))
+    
+    # Sanitize input
+    title = bleach.clean(title, tags=[], strip=True)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, css_sanitizer=css_sanitizer, strip=True)
+    keywords = bleach.clean(keywords, tags=[], strip=True)
+    
+    article = Article(
+        title=title,
+        content=content,
+        category_id=category_id
+    )
+    
+    # Set keywords if provided
+    if keywords:
+        article.set_keywords(keywords.split(','))
+    
+    db.session.add(article)
+    
+    try:
+        db.session.commit()
+        flash('Article added successfully', 'success')
+    except:
+        db.session.rollback()
+        flash('An error occurred while adding the article', 'danger')
+    
+    return redirect(url_for('admin.articles'))
+
+@admin.route('/articles/<int:id>/edit', methods=['POST'])
+@admin_required
+def edit_article(id):
+    title = request.form.get('title', '').strip()
+    content = request.form.get('content', '').strip()
+    keywords = request.form.get('keywords', '').strip()
+    category_id = request.form.get('category_id')
+    
+    if not title or not content or not category_id:
+        flash('Title, content, and category are required', 'danger')
+        return redirect(url_for('admin.articles'))
+        
+    if len(title) > 200:
+        flash('Title must be less than 200 characters', 'danger')
+        return redirect(url_for('admin.articles'))
+    
+    # Sanitize input
+    title = bleach.clean(title, tags=[], strip=True)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, css_sanitizer=css_sanitizer, strip=True)
+    keywords = bleach.clean(keywords, tags=[], strip=True)
+    
+    article = Article.query.get_or_404(id)
+    article.title = title
+    article.content = content
+    article.category_id = category_id
+    
+    # Update keywords
+    article.set_keywords(keywords.split(',') if keywords else [])
+    
+    article.updated_at = datetime.utcnow()
+    
+    try:
+        db.session.commit()
+        flash('Article updated successfully', 'success')
+    except:
+        db.session.rollback()
+        flash('An error occurred while updating the article', 'danger')
+    
+    return redirect(url_for('admin.articles'))
+
+@admin.route('/articles/<int:id>/delete', methods=['POST'])
+@admin_required
+def delete_article(id):
+    article = Article.query.get_or_404(id)
+    
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        flash('Article deleted successfully', 'success')
+    except:
+        db.session.rollback()
+        flash('An error occurred while deleting the article', 'danger')
+    
+    return redirect(url_for('admin.articles'))
+
+@admin.route('/categories/reorder', methods=['POST'])
+@admin_required
+def reorder_categories():
+    categories = request.json.get('categories', [])
+    
+    try:
+        for index, category_id in enumerate(categories):
+            category = Category.query.get(category_id)
+            if category:
+                category.order = index
+        
+        db.session.commit()
+        return jsonify({'message': 'Categories reordered successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin.route('/upload', methods=['POST'])
+@admin_required
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file and allowed_file(file.filename):
+        # Secure the filename and create upload directory if it doesn't exist
+        filename = secure_filename(file.filename)
+        upload_path = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+        os.makedirs(upload_path, exist_ok=True)
+        
+        # Save the file
+        file_path = os.path.join(upload_path, filename)
+        file.save(file_path)
+        
+        # Return the URL for TinyMCE
+        url = url_for('static', filename=f'uploads/{filename}')
+        return jsonify({
+            'location': url
+        })
+    
+    return jsonify({'error': 'Invalid file type'}), 400
+
+@admin.route('/search-report')
+@admin_required
+def search_report():
+    total_searches = db.session.query(db.func.count(SearchLog.id)).scalar() or 0
+    avg_results = db.session.query(db.func.avg(SearchLog.results_count)).scalar() or 0
+    no_results_count = db.session.query(db.func.count(SearchLog.id))\
+        .filter(SearchLog.results_count == 0).scalar() or 0
+    no_results_rate = (no_results_count / total_searches * 100) if total_searches > 0 else 0
+    
+    # Get the most recent 100 searches for initial display
+    searches = SearchLog.query.order_by(SearchLog.created_at.desc()).limit(100).all()
+    
+    return render_template('admin/search_report.html',
+                         total_searches=total_searches,
+                         avg_results=avg_results,
+                         no_results_rate=no_results_rate,
+                         searches=searches)
+
+@admin.route('/api/search-logs')
+@admin_required
+def get_search_logs():
+    searches = SearchLog.query.order_by(SearchLog.created_at.desc()).all()
+    return jsonify([{
+        'term': search.term,
+        'results_count': search.results_count,
+        'created_at': search.created_at.isoformat(),
+        'ip_address': search.ip_address
+    } for search in searches])
+
+@admin.route('/dashboard-data')
+@admin_required
+def dashboard_data():
+    # Get search metrics for the pie chart
+    total_searches = db.session.query(func.count(SearchLog.id)).scalar() or 0
+    searches_with_results = db.session.query(func.count(SearchLog.id)).filter(SearchLog.results_count > 0).scalar() or 0
+    searches_no_results = total_searches - searches_with_results
+    
+    return jsonify({
+        'search_metrics': {
+            'with_results': searches_with_results,
+            'no_results': searches_no_results
+        }
+    })
+
+# Log changes
+with open('changes.log', 'a') as f:
+    f.write('\n[{}] Added rich text article support\n'.format(
+        datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ))
+    f.write('- Added TinyMCE rich text editor\n')
+    f.write('- Added article management (CRUD operations)\n')
+    f.write('- Added proper HTML sanitization for articles\n')
+    f.write('- Added responsive article management interface\n')

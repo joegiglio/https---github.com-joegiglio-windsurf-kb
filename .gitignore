@@ -27,3 +27,6 @@ instance/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Uploaded files
+static/uploads/

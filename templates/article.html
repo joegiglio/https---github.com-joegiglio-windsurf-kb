@@ -2,6 +2,11 @@
 
 {% block title %}{{ article.title }} - Knowledge Base{% endblock %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}">
+{% endblock %}
+
 {% block hero %}
 <div class="article-hero">
     <div class="container">
@@ -17,75 +22,58 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8">
-        <article class="article-container">
-            <header class="article-header">
-                <h1>{{ article.title }}</h1>
-                <div class="article-meta">
-                    <span class="category-tag">
-                        <i class="bi bi-folder"></i>
-                        {{ article.category.name }}
-                    </span>
-                    <span class="date">
-                        <i class="bi bi-clock"></i>
-                        Last updated: {{ article.updated_at.strftime('%B %d, %Y') }}
-                    </span>
-                </div>
-            </header>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('category', category_id=article.category.id) }}">{{ article.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
+        </ol>
+    </nav>
 
-            <div class="article-content">
-                {{ article.content | safe }}
-            </div>
-
-            <footer class="article-footer">
-                <div class="article-feedback">
-                    <h4>Was this article helpful?</h4>
-                    <div class="feedback-buttons">
-                        <button class="btn btn-outline-success btn-sm feedback-btn" data-article-id="{{ article.id }}" data-feedback="helpful">
-                            <i class="bi bi-hand-thumbs-up"></i> Yes
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm feedback-btn" data-article-id="{{ article.id }}" data-feedback="not-helpful">
-                            <i class="bi bi-hand-thumbs-down"></i> No
-                        </button>
-                    </div>
-                </div>
-            </footer>
-        </article>
+    <div class="article-header mb-4">
+        <h1 class="display-4">{{ article.title }}</h1>
+        <div class="article-meta text-muted">
+            <span class="me-3">
+                <i class="bi bi-calendar-event"></i>
+                Last updated: {{ article.updated_at.strftime('%B %d, %Y') }}
+            </span>
+            <span class="me-3">
+                <i class="bi bi-eye"></i>
+                {{ article.views }} views
+            </span>
+            <span class="me-3">
+                <i class="bi bi-folder"></i>
+                {{ article.category.name }}
+            </span>
+        </div>
     </div>
 
-    <div class="col-lg-4">
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="table-of-contents">
-                    <h3>In This Article</h3>
-                    <div id="toc-container"></div>
-                </div>
-            </div>
+    <div class="article-content mb-4">
+        {{ article.content | safe }}
+    </div>
 
-            <div class="sidebar-section">
-                <h3>Related Articles</h3>
-                <div class="related-articles">
-                    {% for related in article.category.articles[:3] if related.id != article.id %}
-                    <a href="{{ url_for('article', article_id=related.id) }}" class="related-article">
-                        <i class="bi bi-file-text"></i>
-                        <span>{{ related.title }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="help-card">
-                    <div class="help-card-icon">
-                        <i class="bi bi-question-circle"></i>
-                    </div>
-                    <h3>Still Need Help?</h3>
-                    <p>Can't find what you're looking for? Our support team is here to help.</p>
-                    <a href="#" class="btn btn-outline-primary">Contact Support</a>
-                </div>
+    <div class="article-feedback border-top pt-4">
+        <h5>Was this article helpful?</h5>
+        <div class="d-flex align-items-center mt-3" id="rating-section">
+            <button class="btn btn-outline-success me-2" id="upvote-btn" data-article-id="{{ article.id }}">
+                <i class="bi bi-hand-thumbs-up"></i>
+                <span class="upvote-count">{{ article.upvotes }}</span>
+            </button>
+            <button class="btn btn-outline-danger me-3" id="downvote-btn" data-article-id="{{ article.id }}">
+                <i class="bi bi-hand-thumbs-down"></i>
+                <span class="downvote-count">{{ article.downvotes }}</span>
+            </button>
+            <div class="rating-percentage">
+                <span class="text-muted">
+                    <span class="percentage-value">{{ article.get_rating_percentage() }}</span>% found this helpful
+                </span>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/article.js') }}"></script>
 {% endblock %}
