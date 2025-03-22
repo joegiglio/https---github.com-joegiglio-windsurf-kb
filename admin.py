@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
+import bleach.css_sanitizer
 
 # Configure bleach to allow specific HTML tags and attributes
 ALLOWED_TAGS = [
@@ -24,11 +25,17 @@ ALLOWED_ATTRIBUTES = {
 
 ALLOWED_STYLES = [
     'text-align', 'margin', 'padding', 'width', 'height',
-    'font-weight', 'font-style', 'text-decoration'
+    'font-weight', 'font-style', 'text-decoration',
+    'color', 'background-color'
 ]
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 UPLOAD_FOLDER = 'static/uploads'
+
+# Create CSS sanitizer
+css_sanitizer = bleach.css_sanitizer.CSSSanitizer(
+    allowed_css_properties=ALLOWED_STYLES
+)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -70,17 +77,6 @@ def clean_content(content):
     )
     
     # Second pass: clean styles using bleach-allowlist
-    from bleach.css_sanitizer import CSSSanitizer
-    
-    css_sanitizer = CSSSanitizer(
-        allowed_css_properties=[
-            'text-align', 'margin', 'padding', 'width', 'height', 'border',
-            'background-color', 'color', 'font-size', 'font-weight', 'font-style',
-            'text-decoration', 'vertical-align', 'margin-left', 'margin-right',
-            'float', 'display'
-        ]
-    )
-    
     final_cleaned = bleach.clean(
         cleaned,
         tags=allowed_tags,
@@ -272,7 +268,7 @@ def add_article():
     
     # Sanitize input
     title = bleach.clean(title, tags=[], strip=True)
-    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, css_sanitizer=css_sanitizer, strip=True)
     keywords = bleach.clean(keywords, tags=[], strip=True)
     
     article = Article(
@@ -314,7 +310,7 @@ def edit_article(id):
     
     # Sanitize input
     title = bleach.clean(title, tags=[], strip=True)
-    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, css_sanitizer=css_sanitizer, strip=True)
     keywords = bleach.clean(keywords, tags=[], strip=True)
     
     article = Article.query.get_or_404(id)
