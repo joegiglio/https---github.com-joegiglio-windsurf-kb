@@ -1,105 +1,66 @@
 $(document).ready(function() {
-    // Initialize TinyMCE
-    function initTinyMCE(selector) {
-        tinymce.init({
-            selector: selector,
-            height: 500,
-            menubar: true,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'paste'
-            ],
-            toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | help',
-            content_style: '@import url("/static/css/article.css");',
-            branding: false,
-            promotion: false,
-            images_upload_url: '/admin/upload',
-            images_upload_credentials: true,
-            automatic_uploads: true,
-            convert_urls: false,
-            relative_urls: false,
-            remove_script_host: false,
-            style_formats: [
-                { title: 'Text align', items: [
-                    { title: 'Left', format: 'alignleft', classes: 'text-left' },
-                    { title: 'Center', format: 'aligncenter', classes: 'text-center' },
-                    { title: 'Right', format: 'alignright', classes: 'text-right' },
-                    { title: 'Justify', format: 'alignjustify', classes: 'text-justify' }
-                ]},
-                { title: 'Image', items: [
-                    { title: 'Responsive', selector: 'img', classes: 'img-fluid' }
-                ]}
-            ],
-            setup: function(editor) {
-                editor.on('change', function() {
-                    editor.save(); // Ensures form submission includes editor content
-                });
-            }
-        });
-    }
-
-    // Initialize TinyMCE for both add and edit forms
-    initTinyMCE('#articleContent');
-    initTinyMCE('#editArticleContent');
-
-    // Initialize DataTable
-    const table = $('#articlesTable').DataTable({
-        order: [[2, 'desc']],  // Sort by created date by default
-        pageLength: 10,
-        language: {
-            search: "Filter articles:"
+    // Initialize TinyMCE for all rich editors
+    tinymce.init({
+        selector: '.rich-editor',
+        height: 400,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+        menubar: false,
+        branding: false,
+        setup: function(editor) {
+            editor.on('change', function() {
+                editor.save();
+            });
         }
     });
 
-    // Add Article Form Submission
-    $('#addArticleForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const form = $(this);
-        const formData = new FormData(form[0]);
-        formData.set('content', tinymce.get('articleContent').getContent());
+    // Edit article
+    $('.edit-article').click(function() {
+        const id = $(this).data('id');
+        const title = $(this).data('title');
+        const content = $('<div/>').html($(this).data('content')).text(); // Decode HTML entities
+        const keywords = $(this).data('keywords');
+        const categoryId = $(this).data('category');
 
-        $.ajax({
-            url: form.attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                $('#addArticleModal').modal('hide');
-                location.reload();
-            },
-            error: function(xhr) {
-                alert('Failed to add article: ' + (xhr.responseJSON?.error || 'Unknown error'));
-                console.error('Error adding article:', xhr.responseText);
+        $('#editArticleForm').attr('action', `/admin/articles/${id}/edit`);
+        $('#editTitle').val(title);
+        $('#editCategory').val(categoryId);
+        $('#editKeywords').val(keywords);
+        
+        // Need to wait for TinyMCE to be ready
+        setTimeout(function() {
+            const editor = tinymce.get('editContent');
+            if (editor) {
+                editor.setContent(content);
             }
-        });
+        }, 100);
     });
 
-    // Edit Article Form Population
-    $('.edit-article').on('click', function() {
-        const btn = $(this);
-        const id = btn.data('id');
-        const title = btn.data('title');
-        const content = btn.data('content');
-        const categoryId = btn.data('category');
+    // Delete article
+    $('.delete-article').click(function() {
+        const id = $(this).data('id');
+        const title = $(this).data('title');
         
-        $('#editArticleForm')
-            .attr('action', `/admin/articles/${id}/edit`)
-            .find('#editArticleTitle').val(title);
-        $('#editArticleCategory').val(categoryId);
-        tinymce.get('editArticleContent').setContent(content);
-        $('#editArticleModal').modal('show');
+        $('#deleteArticleTitle').text(title);
+        $('#deleteArticleForm').attr('action', `/admin/articles/${id}/delete`);
     });
 
-    // Edit Article Form Submission
-    $('#editArticleForm').on('submit', function(e) {
+    // Form submission
+    $('#editArticleForm').submit(function(e) {
         e.preventDefault();
+        
+        // Get content from TinyMCE before form submission
+        const editor = tinymce.get('editContent');
+        if (editor) {
+            $('#editContent').val(editor.getContent());
+        }
         
         const form = $(this);
         const formData = new FormData(form[0]);
-        formData.set('content', tinymce.get('editArticleContent').getContent());
 
         $.ajax({
             url: form.attr('action'),
@@ -111,29 +72,59 @@ $(document).ready(function() {
                 $('#editArticleModal').modal('hide');
                 location.reload();
             },
-            error: function(xhr) {
-                alert('Failed to update article: ' + (xhr.responseJSON?.error || 'Unknown error'));
-                console.error('Error updating article:', xhr.responseText);
+            error: function(xhr, status, error) {
+                alert('An error occurred while saving the article');
+                console.error('Error:', error);
             }
         });
     });
 
-    // Delete Article
-    $('.delete-article').on('click', function() {
-        const btn = $(this);
-        if (confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
-            const id = btn.data('id');
-            $.ajax({
-                url: `/admin/articles/${id}/delete`,
-                method: 'POST',
-                success: function(response) {
-                    location.reload();
-                },
-                error: function(xhr) {
-                    alert('Failed to delete article: ' + (xhr.responseJSON?.error || 'Unknown error'));
-                    console.error('Error deleting article:', xhr.responseText);
-                }
-            });
+    // Add article form submission
+    $('#addArticleModal form').submit(function(e) {
+        e.preventDefault();
+        
+        // Get content from TinyMCE before form submission
+        const editor = tinymce.get('content');
+        if (editor) {
+            $('#content').val(editor.getContent());
         }
+        
+        const form = $(this);
+        const formData = new FormData(form[0]);
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#addArticleModal').modal('hide');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred while adding the article');
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    // Delete form submission
+    $('#deleteArticleForm').submit(function(e) {
+        e.preventDefault();
+        const form = $(this);
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            success: function(response) {
+                $('#deleteArticleModal').modal('hide');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred while deleting the article');
+                console.error('Error:', error);
+            }
+        });
     });
 });

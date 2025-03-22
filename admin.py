@@ -242,20 +242,32 @@ def articles():
 def add_article():
     title = request.form.get('title', '').strip()
     content = request.form.get('content', '').strip()
-    category_id = request.form.get('category_id', type=int)
+    keywords = request.form.get('keywords', '').strip()
+    category_id = request.form.get('category_id')
     
     if not title or not content or not category_id:
-        flash('Title, content and category are required', 'danger')
+        flash('Title, content, and category are required', 'danger')
         return redirect(url_for('admin.articles'))
         
     if len(title) > 200:
         flash('Title must be less than 200 characters', 'danger')
         return redirect(url_for('admin.articles'))
     
-    # Clean and sanitize content
-    cleaned_content = clean_content(content)
+    # Sanitize input
+    title = bleach.clean(title, tags=[], strip=True)
+    content = clean_content(content)
+    keywords = bleach.clean(keywords, tags=[], strip=True)
     
-    article = Article(title=title, content=cleaned_content, category_id=category_id)
+    article = Article(
+        title=title,
+        content=content,
+        category_id=category_id
+    )
+    
+    # Set keywords if provided
+    if keywords:
+        article.set_keywords(keywords.split(','))
+    
     db.session.add(article)
     
     try:
@@ -272,23 +284,30 @@ def add_article():
 def edit_article(id):
     title = request.form.get('title', '').strip()
     content = request.form.get('content', '').strip()
-    category_id = request.form.get('category_id', type=int)
+    keywords = request.form.get('keywords', '').strip()
+    category_id = request.form.get('category_id')
     
     if not title or not content or not category_id:
-        flash('Title, content and category are required', 'danger')
+        flash('Title, content, and category are required', 'danger')
         return redirect(url_for('admin.articles'))
         
     if len(title) > 200:
         flash('Title must be less than 200 characters', 'danger')
         return redirect(url_for('admin.articles'))
     
-    # Clean and sanitize content
-    cleaned_content = clean_content(content)
+    # Sanitize input
+    title = bleach.clean(title, tags=[], strip=True)
+    content = clean_content(content)
+    keywords = bleach.clean(keywords, tags=[], strip=True)
     
     article = Article.query.get_or_404(id)
     article.title = title
-    article.content = cleaned_content
+    article.content = content
     article.category_id = category_id
+    
+    # Update keywords
+    article.set_keywords(keywords.split(',') if keywords else [])
+    
     article.updated_at = datetime.utcnow()
     
     try:

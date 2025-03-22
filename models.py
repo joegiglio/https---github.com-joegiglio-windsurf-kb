@@ -28,6 +28,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    keywords = db.Column(db.String(500))  # Store keywords as comma-separated string
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -47,11 +48,27 @@ class Article(db.Model):
             return text[:length].rsplit(' ', 1)[0] + '...'
         return text
     
+    def get_keywords_list(self):
+        """Get keywords as a list"""
+        if not self.keywords:
+            return []
+        return [k.strip() for k in self.keywords.split(',') if k.strip()]
+    
+    def set_keywords(self, keywords_list):
+        """Set keywords from a list"""
+        if not keywords_list:
+            self.keywords = None
+        else:
+            # Remove duplicates, strip whitespace, and join with commas
+            cleaned_keywords = {k.strip() for k in keywords_list if k.strip()}
+            self.keywords = ','.join(sorted(cleaned_keywords))
+    
     def to_dict(self):
         return {
             'id': self.id,
             'title': bleach.clean(self.title),
             'content': bleach.clean(self.content),
+            'keywords': self.get_keywords_list(),
             'preview': self.get_preview(100),
             'category_id': self.category_id,
             'category_name': bleach.clean(self.category.name),

@@ -6,7 +6,7 @@ from extensions import db
 from models import Category, Article, SearchLog
 from datetime import datetime
 from flask_migrate import Migrate
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 def create_app():
     app = Flask(__name__)
@@ -47,16 +47,19 @@ def create_app():
                 Article(
                     title='Welcome to Knowledge Base',
                     content='Welcome to our knowledge base system. Here you will find helpful articles and guides.',
+                    keywords='help,guide,introduction,getting started',
                     category_id=1
                 ),
                 Article(
                     title='Getting Started with Technology',
                     content='Learn about the latest technology trends and how to stay up to date.',
+                    keywords='tech,trends,innovation,learning',
                     category_id=2
                 ),
                 Article(
                     title='Business Best Practices',
                     content='Discover the best practices for running a successful business.',
+                    keywords='business,management,success,strategy',
                     category_id=3
                 )
             ]
@@ -132,10 +135,13 @@ def create_app():
         # Sanitize input
         sanitized_query = bleach.clean(query, tags=[], strip=True)
         
-        # Search in both title and content
+        # Search in title, content, and keywords
         articles = Article.query.filter(
-            Article.title.ilike(f'%{sanitized_query}%') |
-            Article.content.ilike(f'%{sanitized_query}%')
+            or_(
+                Article.title.ilike(f'%{sanitized_query}%'),
+                Article.content.ilike(f'%{sanitized_query}%'),
+                Article.keywords.ilike(f'%{sanitized_query}%')
+            )
         ).limit(10).all()
         
         # Only log completed searches (when form is submitted)
