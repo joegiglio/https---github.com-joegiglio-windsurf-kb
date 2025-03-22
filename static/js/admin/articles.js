@@ -22,7 +22,7 @@ $(document).ready(function() {
     $('.edit-article').click(function() {
         const id = $(this).data('id');
         const title = $(this).data('title');
-        const content = $('<div/>').html($(this).data('content')).text(); // Decode HTML entities
+        const content = $(this).data('content'); // Don't decode HTML - TinyMCE expects raw HTML
         const keywords = $(this).data('keywords');
         const categoryId = $(this).data('category');
 

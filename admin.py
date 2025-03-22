@@ -9,9 +9,24 @@ import os
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
 
-admin = Blueprint('admin', __name__, url_prefix='/admin')
+# Configure bleach to allow specific HTML tags and attributes
+ALLOWED_TAGS = [
+    'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'hr', 'table', 'thead',
+    'tbody', 'tr', 'th', 'td', 'a', 'img', 'div', 'span'
+]
 
-# Add ALLOWED_EXTENSIONS and upload folder configuration at the top
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style'],
+    'a': ['href', 'title', 'target'],
+    'img': ['src', 'alt', 'title', 'width', 'height', 'class']
+}
+
+ALLOWED_STYLES = [
+    'text-align', 'margin', 'padding', 'width', 'height',
+    'font-weight', 'font-style', 'text-decoration'
+]
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 UPLOAD_FOLDER = 'static/uploads'
 
@@ -77,6 +92,8 @@ def clean_content(content):
     )
     
     return final_cleaned
+
+admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin.route('/')
 @admin_required
@@ -255,7 +272,7 @@ def add_article():
     
     # Sanitize input
     title = bleach.clean(title, tags=[], strip=True)
-    content = clean_content(content)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True)
     keywords = bleach.clean(keywords, tags=[], strip=True)
     
     article = Article(
@@ -297,7 +314,7 @@ def edit_article(id):
     
     # Sanitize input
     title = bleach.clean(title, tags=[], strip=True)
-    content = clean_content(content)
+    content = bleach.clean(content, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip=True)
     keywords = bleach.clean(keywords, tags=[], strip=True)
     
     article = Article.query.get_or_404(id)
