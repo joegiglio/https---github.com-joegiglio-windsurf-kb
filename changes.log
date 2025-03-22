@@ -609,3 +609,96 @@ Next Steps:
 - Added article management (CRUD operations)
 - Added proper HTML sanitization for articles
 - Added responsive article management interface
+
+[2025-03-22 12:34:23] Fixed search logging in admin dashboard
+- Removed lastLoggedSearch check in main.js
+- Now logging all form submissions, even if the search term is repeated
+- Search reports in admin dashboard should now show all searches
+
+[2025-03-22 12:36:08] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:36:09] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:40:00] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:38:55] Fixed search report aggregation
+- Updated get_popular_searches to properly group search terms
+- Made search term grouping case-insensitive
+- Added sorting by count and most recent search time
+
+[2025-03-22 12:40:41] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:40:42] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:42:15] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:42:43] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:41:36] Fixed search logging to properly count searches
+- Updated search route to update existing search logs instead of creating new ones
+- Added case-insensitive search term matching
+- Improved SQLAlchemy query efficiency with proper func imports
+- Fixed search report to show accurate counts and most recent search times
+
+[2025-03-22 12:43:23] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:43:24] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:45:07] Fixed search log counting
+- Changed search logging to increment results_count instead of overwriting it
+- Added debug logging for search counts
+- Fixed case where new search logs start with count=1
+
+[2025-03-22 12:45:41] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:46:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface
+
+[2025-03-22 12:46:17] Added rich text article support
+- Added TinyMCE rich text editor
+- Added article management (CRUD operations)
+- Added proper HTML sanitization for articles
+- Added responsive article management interface

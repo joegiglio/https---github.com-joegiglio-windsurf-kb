@@ -6,6 +6,7 @@ from extensions import db
 from models import Category, Article, SearchLog
 from datetime import datetime
 from flask_migrate import Migrate
+from sqlalchemy import func
 
 def create_app():
     app = Flask(__name__)
@@ -139,13 +140,30 @@ def create_app():
         
         # Only log completed searches (when form is submitted)
         if should_log:
-            search_log = SearchLog(
-                term=sanitized_query[:100],  # Ensure max length
-                results_count=len(articles),
-                ip_address=request.remote_addr
-            )
-            db.session.add(search_log)
-            db.session.commit()
+            # Check if this search term exists (case-insensitive)
+            existing_search = SearchLog.query.filter(
+                func.lower(SearchLog.term) == func.lower(sanitized_query)
+            ).first()
+            
+            try:
+                if existing_search:
+                    # Update existing search log - increment count and update timestamp
+                    existing_search.results_count += 1  # Increment the count
+                    existing_search.created_at = datetime.utcnow()  # Update timestamp
+                else:
+                    # Create new search log with count = 1
+                    search_log = SearchLog(
+                        term=sanitized_query[:100],  # Ensure max length
+                        results_count=1,  # Start with count = 1
+                        ip_address=request.remote_addr
+                    )
+                    db.session.add(search_log)
+                
+                db.session.commit()
+                print(f"Logged search for '{sanitized_query}' with count: {existing_search.results_count if existing_search else 1}")
+            except Exception as e:
+                print(f"Error logging search: {str(e)}")
+                db.session.rollback()
         
         return jsonify([article.to_dict() for article in articles])
 

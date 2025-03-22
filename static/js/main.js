@@ -106,10 +106,8 @@ $(document).ready(function() {
     $searchForm.on('submit', function(e) {
         e.preventDefault();
         const query = $searchInput.val().trim();
-        if (query !== lastLoggedSearch) {  // Only log if it's a new search
-            performSearch(query, true);  // Log on form submission
-            lastLoggedSearch = query;
-        }
+        performSearch(query, true);  // Always log on form submission
+        lastLoggedSearch = query;
     });
 
     // Handle search input with debouncing

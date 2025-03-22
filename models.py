@@ -3,6 +3,7 @@ from extensions import db
 import bleach
 import re
 import html
+from sqlalchemy import func
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,10 +90,15 @@ class SearchLog(db.Model):
     
     @staticmethod
     def get_popular_searches(limit=10):
+        # Use func.count() to count occurrences
+        # Use func.max() to get the most recent search time
         return db.session.query(
-            SearchLog.term,
-            db.func.count(SearchLog.id).label('count'),
-            db.func.max(SearchLog.created_at).label('last_searched')
-        ).group_by(SearchLog.term)\
-         .order_by(db.text('count DESC'))\
-         .limit(limit).all()
+            SearchLog.term,  # Keep original term for display
+            func.count(SearchLog.id).label('count'),
+            func.max(SearchLog.created_at).label('last_searched')
+        ).group_by(
+            func.lower(SearchLog.term)  # Group by lowercase term
+        ).order_by(
+            func.desc('count'),  # Order by count first
+            func.desc('last_searched')  # Then by most recent search
+        ).limit(limit).all()
