@@ -26,12 +26,12 @@
                     </thead>
                     <tbody id="categoryList">
                         {% for category in categories %}
-                        <tr class="category-row" data-id="{{ category.id }}">
+                        <tr class="category-row" data-id="{{ category.id }}" data-testid="category-row">
                             <td class="handle-container">
                                 <i class="fas fa-grip-vertical handle"></i>
                             </td>
-                            <td>{{ category.name }}</td>
-                            <td>{{ category.description or '' }}</td>
+                            <td data-testid="category-name">{{ category.name }}</td>
+                            <td data-testid="category-description">{{ category.description or '' }}</td>
                             <td>{{ category.articles|length }}</td>
                             <td>
                                 <div class="btn-group">
