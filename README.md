@@ -101,19 +101,55 @@ pytest tests/test_e2e.py::test_category_creation
 
 ```
 knowledge-base/
-├── app.py              # Application entry point
-├── routes/            
-│   ├── admin.py       # Admin routes
-│   └── main.py        # Public routes
-├── models/            
-│   └── __init__.py    # Database models
-├── templates/
-│   ├── admin/         # Admin templates
-│   └── public/        # Public templates
-├── static/
-│   ├── css/           # Stylesheets
-│   └── js/            # JavaScript files
-└── tests/             # Test files
+├── README.md           # Project documentation
+├── admin.py           # Admin related functionality
+├── app.py            # Application entry point
+├── changes.log       # Change log file
+├── extensions.py     # Flask extensions
+├── hello.py         # Hello world example
+├── init_db.py       # Database initialization
+├── migrations/      # Database migrations
+│   ├── README
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/
+├── models.py        # Database models
+├── pytest.ini      # Pytest configuration
+├── requirements.txt # Project dependencies
+├── static/         # Static files
+│   ├── css/        # Stylesheets
+│   │   ├── admin.css
+│   │   ├── article.css
+│   │   └── style.css
+│   └── js/         # JavaScript files
+│       ├── admin/
+│       │   ├── articles.js
+│       │   ├── categories.js
+│       │   ├── dashboard.js
+│       │   ├── login.js
+│       │   ├── search_report.js
+│       │   └── utils.js
+│       ├── admin.js
+│       ├── article.js
+│       └── main.js
+├── templates/      # HTML templates
+│   ├── admin/     # Admin templates
+│   │   ├── articles.html
+│   │   ├── base.html
+│   │   ├── categories.html
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   └── search_report.html
+│   ├── article.html
+│   ├── base.html
+│   ├── category.html
+│   └── index.html
+└── tests/         # Test files
+    ├── __init__.py
+    ├── conftest.py
+    ├── create_test_image.py
+    └── test_e2e.py
 ```
 
 ## Security Features
