@@ -170,11 +170,10 @@ knowledge-base/
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This license allows you to use, copy, modify, merge, publish, or distribute copies of this software.
+Users may not use any part of this software in commercial projects.
+The authors of this software are not liable for any damages or losses resulting from the use of this software.  It is being shared for educational purposes only.
 
 ## Acknowledgments
 
-- Flask framework
-- Bootstrap for UI components
-- Playwright for testing
-- SQLAlchemy for database management
+- Joe Giglio (original author) [LinkedIn Profile](https://www.linkedin.com/in/joegiglio/)
