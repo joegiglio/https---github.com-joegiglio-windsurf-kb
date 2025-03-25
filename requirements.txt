@@ -8,3 +8,7 @@ WTForms==3.1.2
 Werkzeug==3.0.1
 bleach==6.1.0
 Flask-Login==0.6.3
+playwright==1.42.0
+pytest==8.0.2
+pytest-playwright==0.4.4
+Pillow==10.2.0
