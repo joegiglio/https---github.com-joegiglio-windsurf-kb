@@ -24,8 +24,8 @@ A modern, responsive knowledge base application built with Flask and Bootstrap. 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/knowledge-base.git
-cd knowledge-base
+git clone https://github.com/joegiglio/windsurf-vide-coding-kb
+cd kb1
 ```
 
 2. Create and activate a virtual environment:
@@ -177,3 +177,5 @@ The authors of this software are not liable for any damages or losses resulting 
 ## Acknowledgments
 
 - Joe Giglio (original author) [LinkedIn Profile](https://www.linkedin.com/in/joegiglio/)
+- Codeium Windsurf [Website](https://codeium.com/windsurf)
+- Anthropic Claude 3.5 Sonnet [Website](https://www.anthropic.com/claude)
